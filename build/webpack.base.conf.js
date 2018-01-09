@@ -1,4 +1,5 @@
 'use strict'
+const webpack = require('webpack')
 const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
@@ -20,6 +21,7 @@ const createLintingRule = () => ({
 })
 
 module.exports = {
+  plugins: [ new webpack.ProvidePlugin({ $: "jquery", jQuery: "jquery", "windows.jQuery": "jquery" })],
   context: path.resolve(__dirname, '../'),
   entry: {
     app: './src/main.js'
