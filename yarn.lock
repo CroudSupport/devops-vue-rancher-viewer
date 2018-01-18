@@ -9846,6 +9846,10 @@ vue-lodash@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/vue-lodash/-/vue-lodash-1.0.4.tgz#99f4f2f5832ce0168c4d45618789288a638562cd"
 
+vue-object-view@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/vue-object-view/-/vue-object-view-0.4.2.tgz#2db4b53c29e57481a6cdd7ac3be3f239512cf84f"
+
 vue-router@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.0.1.tgz#d9b05ad9c7420ba0f626d6500d693e60092cc1e9"

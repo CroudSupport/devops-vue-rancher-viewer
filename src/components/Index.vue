@@ -1,74 +1,96 @@
 <template>
-  <div class="hello">
-    <!-- <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      <br>
-      <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul> -->
-    <!-- <semantic-form-dropdown ref="currentStack"  > -->
-<!-- <option v-for="option in data" :value="option.uuid" :key="option.uuid">
-  {{ option.name }}
-</option> -->
-<!-- <option v-for="d in data" v-bind:value="d" :key="d.uuid" >{{d.name}}</option>
-    </semantic-form-dropdown> -->
+<div>
 
-    <select v-model="currentStack" >
-  <!-- inline object literal -->
-  <option v-for="d in orderedStacks" v-bind:value="d" :key="d.uuid" >{{d.name}}</option>
-</select>
-    <div>
-      {{ currentStack.uuid }}
-      </div>
-    <!-- <div v-for="d in data" :key="d.id">{{ d.title }}</div> -->
-  <!-- <stack></stack> -->
-  </div>
+     <semantic-modal v-model="showModal"  :settings="{content_classes: {content: true}, closeable: true, closeable_button: true}" :title="modalTitle" @close-modal="showModal = false">
+        <VueObjectView v-model="modalContent" :options="{maxDepth: 3}" />
+    </semantic-modal>
 
+
+<table class="ui celled padded table">
+<thead>
+<tr>
+<th>Stack Name<input v-model="stackFilter" /><span>{{stackFilter}}</span></th>
+<th>Services<input v-model="serviceFilter"/></th>
+</tr></thead>
+<tbody>
+<tr v-for="stack in orderedStacks" :key="stack.uuid">
+<td class="single line">
+<span>{{stack.name}}</span>
+<button @click="ShowModal(stack.raw)" class="ui button">Show</button>
+</td>
+<td class="center aligned">
+<stack :stack="stack"></stack>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </template>
 
 <script>
-import _ from 'lodash'
+// import _ from 'lodash'
+
+import VueObjectView from 'vue-object-view'
+// Vue.use(TreeView)
 import Stack from './Stack'
+
 export default {
-  name: "HelloWorld",
-  components: { Stack },
-  data() {
-    return {
-      msg: "Welcome to Your Vue.js App",
-      test: "test",
-      currentStack: {
-        uuid: null
-      },
-      thing: null,
-      data: []
-    };
-  },
-  computed: {
-    orderedStacks: function() {
-      return _.orderBy(this.data, "name");
-    }
-  },
-  mounted() {
-    this.$http
-      .get("http://rancher-metadata.rancher.internal/latest/stacks", {
-        headers: { Accept: "application/json" }
+    name: 'HelloWorld',
+    components: { Stack, VueObjectView },
+    data() {
+        return {
+            stackFilter: '',
+            serviceFilter: '',
+            currentStack: null,
+            showModal: false,
+            modalContent: null,
+            modalTitle: null,
+            data: [],
+        }
+    },
+    methods: {
+        ShowModal(stack) {
+            this.modalContent = stack
+            this.modalTitle = stack.name
+            this.showModal = true
+        },
+    },
+    computed: {
+        orderedStacks() {
+            const result = this.data
+              .map(stack => ({ ...stack,
+                  raw: stack,
+                  services: stack.services.filter(service => service.name.indexOf(this.serviceFilter) > -1).map(
+                    (service) => {
+                    // TODO get this from metadata
+                        let port = ''
+                        if (service.name.indexOf('flower') > -1) {
+                            port = ':5555'
+                        } else if (service.name.indexOf('pgadmin') > -1) {
+                            port = ':5050'
+                        }
+                        return {
+                            name: service.name,
+                            serviceLink: `http://${service.name}.${stack.name}${port}/`,
+                        }
+                    }),
+
+
+              }))
+                .filter(stack => stack.name.indexOf(this.stackFilter) > -1 && stack.services.length > 0)
+            return result
+        },
+    },
+    mounted() {
+        this.$http
+      .get('http://rancher-metadata.rancher.internal/latest/stacks', {
+          headers: { Accept: 'application/json' },
       })
-      .then(response => {
-        this.data = response.data;
-      });
-  }
-};
+      .then((response) => {
+          this.data = response.data
+      })
+    },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
