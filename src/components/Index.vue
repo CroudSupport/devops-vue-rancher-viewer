@@ -30,71 +30,71 @@
 <script>
 // import _ from 'lodash'
 
-import VueObjectView from "vue-object-view";
+import VueObjectView from 'vue-object-view'
 // Vue.use(TreeView)
-import Stack from "./Stack";
+import Stack from './Stack'
 
 export default {
-  name: "HelloWorld",
-  components: { Stack, VueObjectView },
-  data() {
-    return {
-      stackFilter: "",
-      serviceFilter: "",
-      currentStack: null,
-      showModal: false,
-      modalContent: null,
-      modalTitle: null,
-      data: []
-    };
-  },
-  methods: {
-    ShowModal(stack) {
-      this.modalContent = stack;
-      this.modalTitle = stack.name;
-      this.showModal = true;
-    }
-  },
-  computed: {
-    orderedStacks() {
-      const result = this.data
+    name: 'HelloWorld',
+    components: { Stack, VueObjectView },
+    data() {
+        return {
+            stackFilter: '',
+            serviceFilter: '',
+            currentStack: null,
+            showModal: false,
+            modalContent: null,
+            modalTitle: null,
+            data: [],
+        }
+    },
+    methods: {
+        ShowModal(stack) {
+            this.modalContent = stack
+            this.modalTitle = stack.name
+            this.showModal = true
+        },
+    },
+    computed: {
+        orderedStacks() {
+            const result = this.data
         .map(stack => ({
-          ...stack,
-          raw: stack,
-          services: stack.services
+            ...stack,
+            raw: stack,
+            services: stack.services
             .filter(service => service.name.indexOf(this.serviceFilter) > -1)
-            .map(service => {
+            .map((service) => {
               // TODO get this from metadata
-              let port = "";
-              if (service.name.indexOf("flower") > -1) {
-                port = ":5555";
-              } else if (service.name.indexOf("pgadmin") > -1) {
-                port = ":5050";
-              }
-              return {
-                name: service.name,
-                serviceLink: `http://${service.name}.${stack.name}${port}/`
-              };
-            })
+                let port = ''
+                if (service.name.indexOf('flower') > -1) {
+                    port = ':5555'
+                } else if (service.name.indexOf('pgadmin') > -1) {
+                    port = ':5050'
+                }
+                return {
+                    name: service.name,
+                    serviceLink: `http://${service.name}.${stack.name}${port}/`,
+                }
+            }),
         }))
         .filter(
           stack =>
             stack.name.indexOf(this.stackFilter) > -1 &&
-            stack.services.length > 0
-        );
-      return result;
-    }
-  },
-  mounted() {
-    this.$http
-      .get("http://rancher-metadata.rancher.internal/latest/stacks", {
-        headers: { Accept: "application/json" }
+            stack.services.length > 0,
+        )
+            return result
+        },
+    },
+    mounted() {
+        this.$http
+      .get('http://rancher-metadata.rancher.internal/latest/stacks', {
+          headers: { Accept: 'application/json' },
       })
-      .then(response => {
-        this.data = response.data;
-      });
-  }
-};
+      .then((response) => {
+          this.data = response.data
+      })
+    },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
