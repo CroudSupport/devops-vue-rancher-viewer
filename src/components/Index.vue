@@ -57,7 +57,7 @@ export default {
     },
     computed: {
         orderedStacks() {
-            const result = this.data
+            const result = this.data.filter(stack => stack.services)
         .map(stack => ({
             ...stack,
             raw: stack,
